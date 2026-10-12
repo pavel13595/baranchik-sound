@@ -114,7 +114,10 @@ export class MissingAlertsTokenError extends Error {
 
 export class MissingServerAlertsTokenError extends AlertApiError {
   constructor(diagnostics: AlertApiDiagnostics) {
-    super('На сервері не задано ALERTS_TOKEN (.env.local).', diagnostics);
+    super(
+      'На сервері не задано ALERTS_TOKEN. Для локального запуску задайте його в .env.local; для Vercel — у Project Settings → Environment Variables і створіть новий deployment.',
+      diagnostics,
+    );
     this.name = 'MissingServerAlertsTokenError';
   }
 }

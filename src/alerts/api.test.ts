@@ -182,7 +182,8 @@ describe('fetchActiveAlerts', () => {
       fetchActiveAlerts({ ...venueConfig, proxyUrl: '/api/alerts' }, null, fetcher),
     ).rejects.toMatchObject({
       name: 'MissingServerAlertsTokenError',
-      message: 'На сервері не задано ALERTS_TOKEN (.env.local).',
+      message:
+        'На сервері не задано ALERTS_TOKEN. Для локального запуску задайте його в .env.local; для Vercel — у Project Settings → Environment Variables і створіть новий deployment.',
       diagnostics: { status: 503 },
     });
   });
