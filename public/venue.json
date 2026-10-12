@@ -1,0 +1,28 @@
+{
+  "venueName": "Той самий Баранчик",
+  "tagline": "Ресторан грузинського застілля 🇺🇦 🇬🇪",
+  "logo": "",
+  "theme": {
+    "heroImage": "images/hero.jpeg"
+  },
+  "pollIntervalSec": 12,
+  "staleAfterSec": 600,
+  "alerts": {
+    "auth": "query",
+    "clearConfirmPolls": 2
+  },
+  "music": {
+    "syncStart": "11:30",
+    "dayRolloverHour": 5
+  },
+  "signals": {
+    "yellow": "sounds/Tryvoga-Kremenchuk-Yellow.mp3",
+    "red": "sounds/Tryvoga-Kremenchuk-Red.mp3",
+    "clear": "sounds/Tryvoga-Vidbii_01.mp3",
+    "activeHours": null
+  },
+  "gamarjos": {
+    "dir": "gamarjos"
+  },
+  "proxyUrl": "api/alerts"
+}

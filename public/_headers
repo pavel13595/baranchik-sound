@@ -1,0 +1,23 @@
+/index.html
+  Cache-Control: no-cache
+
+/venue.json
+  Cache-Control: no-cache
+
+/gamarjos.json
+  Cache-Control: no-cache
+
+/styles.css
+  Cache-Control: no-cache
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/fonts/*
+  Cache-Control: public, max-age=86400
+
+/sounds/*
+  Cache-Control: public, max-age=86400
+
+/gamarjos/*
+  Cache-Control: public, max-age=86400

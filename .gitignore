@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+public/styles.css
+coverage/
+test-results/
+.DS_Store
+*.log

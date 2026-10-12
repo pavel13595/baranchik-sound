@@ -1,0 +1,52 @@
+{
+  "name": "baranchik_sound",
+  "description": "Музика та автоматичне оповіщення про тривогу",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "scripts": {
+    "predev": "node scripts/make-gamarjos.mjs && node scripts/make-styles.mjs && node scripts/make-locations.mjs",
+    "dev": "vite",
+    "prebuild": "node scripts/make-gamarjos.mjs && node scripts/make-styles.mjs && node scripts/make-locations.mjs",
+    "build": "vite build",
+    "postbuild": "node scripts/check-compat.mjs && node scripts/check-no-embedded-token.mjs && node scripts/add-csp.mjs",
+    "preview": "vite preview",
+    "preview:lan": "npm run build && node scripts/serve.mjs",
+    "make-icons": "node scripts/make-icons.mjs",
+    "start": "node scripts/serve.mjs",
+    "serve": "npm run build && node scripts/serve.mjs",
+    "test": "vitest run --passWithNoTests",
+    "test:e2e": "playwright test --config=playwright.config.ts",
+    "lint": "eslint . && prettier --check .",
+    "check-compat": "node scripts/check-compat.mjs",
+    "make-locations": "node scripts/make-locations.mjs",
+    "worker:dev": "wrangler dev --config worker/wrangler.toml",
+    "worker:deploy": "wrangler deploy --config worker/wrangler.toml",
+    "worker:typecheck": "tsc --noEmit -p worker/tsconfig.json"
+  },
+  "dependencies": {
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/raleway": "^5.3.0",
+    "core-js": "3.40.0",
+    "csv-parse": "^7.0.3"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "4.20260702.1",
+    "@playwright/test": "^1.64.0",
+    "@vitejs/plugin-legacy": "5.4.3",
+    "eslint": "9.17.0",
+    "jsdom": "^24.1.3",
+    "prettier": "3.4.2",
+    "sharp": "^0.35.5",
+    "terser": "5.37.0",
+    "typescript": "5.7.2",
+    "typescript-eslint": "8.18.0",
+    "vite": "5.4.14",
+    "vitest": "2.1.8",
+    "wrangler": "3.114.17"
+  }
+}

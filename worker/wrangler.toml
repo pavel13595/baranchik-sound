@@ -1,0 +1,7 @@
+name = "restaurant-alerts-proxy"
+main = "src/index.ts"
+compatibility_date = "2026-10-10"
+workers_dev = true
+
+[vars]
+ALLOWED_ORIGIN = "https://your-restaurant-domain.example"
