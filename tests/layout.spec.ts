@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs';
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
 const viewports = [
   { width: 320, height: 568, name: '320x568' },
@@ -25,12 +25,43 @@ function overlaps(
   );
 }
 
+async function unlockApp(page: Page): Promise<void> {
+  await expect(page.locator('.passcode-screen')).toBeVisible();
+  for (const digit of '2355') {
+    await page.locator(`[data-passcode-digit="${digit}"]`).click();
+  }
+  await expect(page.locator('.passcode-screen')).toHaveCount(0);
+}
+
+test('requires the four-digit code before showing the app', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.goto('/');
+  await expect(page.locator('.passcode-screen')).toBeVisible();
+  await expect(page.locator('.app-shell')).toHaveCount(0);
+  const passcodeScreen = await page.locator('.passcode-screen').evaluate((element) => ({
+    scrollHeight: element.scrollHeight,
+    clientHeight: element.clientHeight,
+  }));
+  expect(passcodeScreen.scrollHeight).toBeLessThanOrEqual(passcodeScreen.clientHeight);
+
+  for (const digit of '0000') {
+    await page.locator(`[data-passcode-digit="${digit}"]`).click();
+  }
+  await expect(page.locator('[data-passcode-status]')).toHaveText('Неправильний код');
+  await expect(page.locator('.app-shell')).toHaveCount(0);
+  await expect(page.locator('[data-passcode-status]')).toHaveText('Код доступу');
+
+  await unlockApp(page);
+  await expect(page.locator('.app-shell')).toBeVisible();
+});
+
 test('home screen and menu adapt without overlap in WebKit', async ({ page }) => {
   mkdirSync('design/screenshots', { recursive: true });
 
   for (const viewport of viewports) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     await page.goto('/?sim=1');
+    await unlockApp(page);
     await expect(page.locator('[data-alert-title]')).toHaveText('Немає даних');
     await expect(page.locator('[data-audio-lock-banner]')).toBeVisible();
     await expect(page.locator('[data-audio-lock-message]')).toHaveText(
@@ -361,6 +392,7 @@ test('a missing hero image leaves the light fallback without a page error', asyn
   page.on('pageerror', (error) => pageErrors.push(error.message));
   await page.route('**/images/hero.jpeg', (route) => route.abort());
   await page.goto('/?sim=1');
+  await unlockApp(page);
   await expect(page.locator('[data-alert-title]')).toHaveText('Немає даних');
 
   const heroValue = await page.evaluate(() =>
@@ -373,6 +405,7 @@ test('a missing hero image leaves the light fallback without a page error', asyn
 test('selected location updates status immediately and survives page reload', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 667 });
   await page.goto('/?sim=1');
+  await unlockApp(page);
   await page.locator('[data-location-oblast]').selectOption('19');
   await page.locator('[data-location-raion]').selectOption('107');
   await page.locator('[data-location-hromada]').selectOption('1088');
@@ -394,6 +427,7 @@ test('selected location updates status immediately and survives page reload', as
   await expect.poll(() => page.evaluate(() => localStorage.getItem('locationUid'))).toBe('1088');
 
   await page.reload({ waitUntil: 'domcontentloaded' });
+  await unlockApp(page);
   await expect(page.locator('[data-selected-location]')).toHaveText(
     'Місто: м. Кременчук та Кременчуцька територіальна громада',
   );
@@ -411,6 +445,7 @@ test('greeting Stop remains available and manual alarms require confirmation', a
     });
   });
   await page.goto('/?sim=1');
+  await unlockApp(page);
   await expect(page.locator('[data-alert-title]')).toHaveText('Тихо');
   const initialAlertState = await page.locator('[data-diagnostic-status]').textContent();
   const greetingHeight = await page
@@ -474,6 +509,7 @@ test('shows a helpful message when the proxy returns an HTML SPA page', async ({
     }),
   );
   await page.goto('/');
+  await unlockApp(page);
 
   await expect(page.locator('[data-alert-description]')).toContainText('Сервер повернув не JSON');
   await expect(page.locator('[data-alert-description]')).toContainText('HTTP 200');
@@ -482,6 +518,7 @@ test('shows a helpful message when the proxy returns an HTML SPA page', async ({
 
 test('serves branded manifest and icons allowed by the production CSP', async ({ page }) => {
   await page.goto('/');
+  await unlockApp(page);
 
   await expect(page).toHaveTitle('Baranchik Sound');
   const manifestResponse = await page.request.get('/manifest.webmanifest');
@@ -524,6 +561,7 @@ test('keeps the sync target time inside its button on narrow screens', async ({ 
   for (const width of [320, 375, 414]) {
     await page.setViewportSize({ width, height: 800 });
     await page.goto('/?sim=1');
+    await unlockApp(page);
     const metrics = await page.locator('.music-block').evaluate((card) => {
       const music = card.querySelector<HTMLElement>('[data-home-music]');
       const empty = card.querySelector<HTMLElement>('[data-home-music-empty]');

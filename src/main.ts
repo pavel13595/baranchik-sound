@@ -24,6 +24,7 @@ import { bindSelectedLocationView } from './ui/location-display';
 import { getApiStatusPresentation } from './ui/api-status';
 import { getGreetingControlPresentation } from './ui/greeting-control';
 import { preventPageZoom } from './ui/zoom';
+import { requestPasscode } from './ui/passcode';
 import {
   createAlertPoller,
   type AlertPollSnapshot,
@@ -1929,8 +1930,10 @@ if (appRoot) {
     );
   });
   installGlobalErrorHandlers(window);
-  renderView(appRoot);
-  updateSystemDiagnostics(appRoot);
-  startHeartbeat(appRoot);
-  void initializeAudio(appRoot, tokenImportResult);
+  void requestPasscode(appRoot).then(() => {
+    renderView(appRoot);
+    updateSystemDiagnostics(appRoot);
+    startHeartbeat(appRoot);
+    void initializeAudio(appRoot, tokenImportResult);
+  });
 }
