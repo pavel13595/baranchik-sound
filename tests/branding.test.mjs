@@ -36,9 +36,14 @@ describe('Baranchik Sound branding', () => {
     expect(html).toContain('<meta name="theme-color" content="#691817" />');
     expect(html).toContain('<link rel="manifest" href="./manifest.webmanifest" />');
     expect(html).toContain('href="%BASE_URL%styles.css?v=baranchik-header-5"');
-    expect(html).toContain('<link rel="icon" type="image/svg+xml" href="./icons/favicon.svg" />');
+    expect(html).toContain(
+      '<link rel="icon" type="image/png" sizes="128x128" href="./icons/favicon.png" />',
+    );
     expect(html).toContain(
       '<link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png" />',
+    );
+    expect(html).toContain(
+      '<link rel="icon" type="image/png" sizes="16x16" href="./icons/favicon-16.png" />',
     );
     expect(html).toContain(
       '<link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png" />',
@@ -64,6 +69,7 @@ describe('Baranchik Sound branding', () => {
 
   it('ships every generated icon PNG at its target dimensions', async () => {
     const icons = [
+      ['favicon.png', 128],
       ['apple-touch-icon.png', 180],
       ['icon-192.png', 192],
       ['icon-512.png', 512],
