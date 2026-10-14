@@ -37,6 +37,7 @@ describe('home screen markup', () => {
     expect(markup.match(/<audio\b/g)).toHaveLength(2);
     expect(markup).toContain('data-menu-toggle="city"');
     expect(markup).toContain('data-menu-toggle="diagnostics"');
+    expect(markup).toContain('data-page-refresh');
     expect(markup).toContain('id="music" class="audio-element" preload="metadata" loop');
     expect(markup).not.toMatch(/<audio[^>]+(?:crossorigin|autoplay)/i);
     expect(markup).toContain('data-music-file-check');

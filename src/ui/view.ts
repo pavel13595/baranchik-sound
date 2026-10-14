@@ -20,6 +20,7 @@ function setupMenu(root: HTMLElement): void {
   const menu = root.querySelector<HTMLElement>('[data-settings-menu]');
   const backdrop = root.querySelector<HTMLElement>('[data-menu-backdrop]');
   const closeButton = root.querySelector<HTMLButtonElement>('[data-menu-close]');
+  const refreshButton = root.querySelector<HTMLButtonElement>('[data-page-refresh]');
   const burgerButton = root.querySelector<HTMLButtonElement>('[data-menu-open]');
   const openButtons = root.querySelectorAll<HTMLButtonElement>('[data-menu-open]');
   const sectionButtons = root.querySelectorAll<HTMLButtonElement>('[data-menu-toggle]');
@@ -92,6 +93,9 @@ function setupMenu(root: HTMLElement): void {
     openMenu(customEvent.detail || '', burgerButton);
   });
   closeButton.addEventListener('click', closeMenu);
+  if (refreshButton) {
+    refreshButton.addEventListener('click', () => window.location.reload());
+  }
   backdrop.addEventListener('click', closeMenu);
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') closeMenu();
@@ -188,6 +192,7 @@ export function renderView(root: HTMLElement): void {
       <aside class="settings-menu" id="settings-menu" data-settings-menu aria-label="Меню" hidden>
         <div class="menu-header"><h2>Меню</h2><button class="menu-close-button" type="button" data-menu-close aria-label="Закрити меню">✕</button></div>
         <div class="menu-content">
+          <button class="secondary-button menu-refresh-button" type="button" data-page-refresh><span aria-hidden="true">↻</span> Оновити сторінку</button>
           <section class="menu-section">
             <button class="menu-section-toggle" type="button" data-menu-toggle="music" aria-expanded="false" aria-controls="menu-panel-music">Музика</button>
             <div class="menu-section-content" id="menu-panel-music" hidden>

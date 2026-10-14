@@ -402,7 +402,9 @@ test('a missing hero image leaves the light fallback without a page error', asyn
   expect(pageErrors).toEqual([]);
 });
 
-test('selected location updates status immediately and survives page reload', async ({ page }) => {
+test('selected location updates status immediately and survives page refresh from menu', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 375, height: 667 });
   await page.goto('/?sim=1');
   await unlockApp(page);
@@ -426,7 +428,8 @@ test('selected location updates status immediately and survives page reload', as
   await expect(page.locator('[data-alert-title]')).toHaveText('Тихо');
   await expect.poll(() => page.evaluate(() => localStorage.getItem('locationUid'))).toBe('1088');
 
-  await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.locator('[data-menu-open]').first().click();
+  await page.locator('[data-page-refresh]').click();
   await unlockApp(page);
   await expect(page.locator('[data-selected-location]')).toHaveText(
     'Місто: м. Кременчук та Кременчуцька територіальна громада',

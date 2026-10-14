@@ -791,6 +791,16 @@ input::placeholder {
   -webkit-overflow-scrolling: touch;
 }
 
+.menu-refresh-button {
+  width: 100%;
+  margin-bottom: var(--space-3);
+  text-align: center;
+}
+
+.menu-refresh-button span {
+  margin-right: var(--space-2);
+}
+
 .menu-section {
   min-width: 0;
   margin-bottom: var(--space-3);
