@@ -13,15 +13,15 @@ function observe(level: AlertLevel, stale = false): AlertObservation {
 }
 
 describe('reduce', () => {
-  it('initializes from the first successful poll without a signal', () => {
+  it('signals an active alert found on the first successful poll', () => {
     const result = reduce(createInitialState(), observe('yellow'), config);
-    expect(result).toEqual({ state: activeState('yellow'), signal: null, stale: false });
+    expect(result).toEqual({ state: activeState('yellow'), signal: 'yellow', stale: false });
   });
 
-  it('does not signal for an alert that was already active at start', () => {
+  it('does not repeat an alert that remains active after startup', () => {
     const initial = reduce(createInitialState(), observe('red'), config);
     const repeated = reduce(initial.state, observe('red'), config);
-    expect(initial.signal).toBeNull();
+    expect(initial.signal).toBe('red');
     expect(repeated.signal).toBeNull();
     expect(repeated.state.level).toBe('red');
   });

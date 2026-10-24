@@ -44,9 +44,10 @@ export function reduce(
 
   const nextLevel = observation.level;
   if (state.level === null) {
+    const initialSignal = nextLevel === 'yellow' || nextLevel === 'red' ? nextLevel : null;
     return {
       state: { level: nextLevel, clearPolls: 0 },
-      signal: null,
+      signal: initialSignal,
       stale: false,
     };
   }

@@ -183,7 +183,7 @@ describe('AlertPoller', () => {
 
     expect(harness.calls).toHaveLength(2);
     expect(harness.poller.getSnapshot().state.level).toBe('red');
-    expect(harness.signals).toEqual([]);
+    expect(harness.signals).toEqual(['red']);
     harness.poller.stop();
   });
 
@@ -234,7 +234,7 @@ describe('AlertPoller', () => {
     expect(harness.poller.getSnapshot().statusMessage).toContain('proxy-сервера');
     expect(harness.poller.getSnapshot().statusMessage).not.toContain('Спроба');
     expect(harness.poller.getSnapshot().updatedAt).not.toBeNull();
-    expect(harness.signals).toEqual([]);
+    expect(harness.signals).toEqual(['red']);
     harness.poller.stop();
   });
 
@@ -255,17 +255,17 @@ describe('AlertPoller', () => {
     expect(harness.poller.getSnapshot().state.level).toBe('yellow');
     expect(harness.poller.getSnapshot().stale).toBe(true);
     expect(harness.poller.getSnapshot().status).toBe('stale');
-    expect(harness.signals).toEqual([]);
+    expect(harness.signals).toEqual(['yellow']);
     harness.poller.stop();
   });
 
-  it('initializes to an alert active at start without sound', async () => {
+  it('initializes to an alert active at start and queues its sound', async () => {
     const harness = createHarness({ responses: [response([active('red')])] });
     harness.poller.start();
     await flushPromises();
 
     expect(harness.poller.getSnapshot().state.level).toBe('red');
-    expect(harness.signals).toEqual([]);
+    expect(harness.signals).toEqual(['red']);
     expect(harness.transitions).toEqual([]);
     harness.poller.stop();
   });

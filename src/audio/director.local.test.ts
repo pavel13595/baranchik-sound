@@ -119,6 +119,20 @@ describe('local music and alert audio dispatcher', () => {
     expect(harness.director.isAudioUnlocked()).toBe(true);
   });
 
+  it('plays an alarm queued before unlock after the sound is enabled', async () => {
+    const harness = createHarness();
+
+    await harness.director.enqueueAlarm('red');
+    expect(harness.signals.src).toBe('');
+
+    await harness.director.start();
+    await flushPromises();
+
+    expect(harness.signals.src).toBe('red.mp3');
+    expect(harness.signals.play).toHaveBeenCalledTimes(2);
+    expect(harness.director.isAudioUnlocked()).toBe(true);
+  });
+
   it('generates the diagnostic tone as a Safari-compatible PCM WAV', async () => {
     vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:diagnostic-tone');
     const harness = createHarness();
