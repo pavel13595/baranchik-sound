@@ -24,7 +24,6 @@ import { bindSelectedLocationView } from './ui/location-display';
 import { getApiStatusPresentation } from './ui/api-status';
 import { getGreetingControlPresentation } from './ui/greeting-control';
 import { preventPageZoom } from './ui/zoom';
-import { requestPasscode } from './ui/passcode';
 import {
   createAlertPoller,
   type AlertPollSnapshot,
@@ -627,14 +626,8 @@ async function copyDiagnostics(root: HTMLElement, clockSkew: number | null): Pro
   return copied;
 }
 
-function startHeartbeat(root: HTMLElement): number {
+function startHeartbeat(): number {
   const key = 'appHeartbeatAt';
-  const restartBanner = root.querySelector<HTMLElement>('[data-audio-lock-banner]');
-  const lockMessage = root.querySelector<HTMLElement>('[data-audio-lock-message]');
-  if (restartBanner && lockMessage) {
-    restartBanner.hidden = false;
-    lockMessage.textContent = 'Торкніться екрана, інакше сигнали не заграють.';
-  }
 
   const writeHeartbeat = (): void => {
     try {
@@ -693,6 +686,7 @@ async function initializeAudio(
     const settingsFeedback = root.querySelector<HTMLElement>('[data-settings-feedback]');
     const restartBanner = root.querySelector<HTMLElement>('[data-audio-lock-banner]');
     const lockMessage = root.querySelector<HTMLElement>('[data-audio-lock-message]');
+    const unlockButton = root.querySelector<HTMLButtonElement>('[data-audio-unlock]');
     const copyDiagnosticsButton = root.querySelector<HTMLButtonElement>('[data-copy-diagnostics]');
     const wakeFallback = root.querySelector<HTMLDetailsElement>('[data-wake-fallback]');
     const selfTestButton = root.querySelector<HTMLButtonElement>('[data-self-test-run]');
@@ -1414,10 +1408,20 @@ async function initializeAudio(
       }
 
       restartBanner.hidden = unlocked;
+      if (unlockButton) {
+        unlockButton.disabled = false;
+      }
       if (!unlocked) {
-        lockMessage.textContent = 'Торкніться екрана, інакше сигнали не заграють.';
+        lockMessage.textContent = 'Натисніть кнопку, щоб увімкнути звук сигналів.';
       }
     }
+
+    const showAudioUnlockPrompt = (): void => {
+      if (restartBanner && lockMessage) {
+        restartBanner.hidden = false;
+        lockMessage.textContent = 'Натисніть кнопку, щоб увімкнути звук сигналів.';
+      }
+    };
 
     const startRuntime = (): void => {
       if (appStarted) {
@@ -1502,6 +1506,27 @@ async function initializeAudio(
         audioFeedback.textContent = '';
       }
     };
+
+    if (unlockButton) {
+      unlockButton.addEventListener('click', () => {
+        unlockButton.disabled = true;
+        void director.start().then((unlocked) => {
+          unlockButton.disabled = false;
+          updateAudioLockBanner(unlocked);
+          if (unlocked) {
+            completeDirectUnlock();
+          }
+          if (!unlocked && audioFeedback) {
+            audioFeedback.textContent = 'Не вдалося увімкнути звук. Натисніть кнопку ще раз.';
+          }
+        });
+      });
+    }
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        showAudioUnlockPrompt();
+      }
+    });
 
     const wakeLockController = createWakeLockController({
       navigator: navigator as unknown as WakeLockNavigatorLike,
@@ -1930,10 +1955,8 @@ if (appRoot) {
     );
   });
   installGlobalErrorHandlers(window);
-  void requestPasscode(appRoot).then(() => {
-    renderView(appRoot);
-    updateSystemDiagnostics(appRoot);
-    startHeartbeat(appRoot);
-    void initializeAudio(appRoot, tokenImportResult);
-  });
+  renderView(appRoot);
+  updateSystemDiagnostics(appRoot);
+  startHeartbeat();
+  void initializeAudio(appRoot, tokenImportResult);
 }

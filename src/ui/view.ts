@@ -21,6 +21,7 @@ function setupMenu(root: HTMLElement): void {
   const backdrop = root.querySelector<HTMLElement>('[data-menu-backdrop]');
   const closeButton = root.querySelector<HTMLButtonElement>('[data-menu-close]');
   const refreshButton = root.querySelector<HTMLButtonElement>('[data-page-refresh]');
+  const orientationButton = root.querySelector<HTMLButtonElement>('[data-orientation-toggle]');
   const burgerButton = root.querySelector<HTMLButtonElement>('[data-menu-open]');
   const openButtons = root.querySelectorAll<HTMLButtonElement>('[data-menu-open]');
   const sectionButtons = root.querySelectorAll<HTMLButtonElement>('[data-menu-toggle]');
@@ -96,6 +97,30 @@ function setupMenu(root: HTMLElement): void {
   if (refreshButton) {
     refreshButton.addEventListener('click', () => window.location.reload());
   }
+  const setInverted = (inverted: boolean): void => {
+    root.classList.toggle('app--inverted', inverted);
+    if (orientationButton) {
+      orientationButton.setAttribute('aria-pressed', String(inverted));
+      orientationButton.textContent = inverted ? '↻ Повернути екран' : '↻ Перевернути екран';
+    }
+    try {
+      localStorage.setItem('screenOrientationInverted', inverted ? '1' : '0');
+    } catch {
+      // Поворот має працювати навіть без доступного localStorage.
+    }
+  };
+  let inverted = false;
+  try {
+    inverted = localStorage.getItem('screenOrientationInverted') === '1';
+  } catch {
+    inverted = false;
+  }
+  setInverted(inverted);
+  if (orientationButton) {
+    orientationButton.addEventListener('click', () => {
+      setInverted(!root.classList.contains('app--inverted'));
+    });
+  }
   backdrop.addEventListener('click', closeMenu);
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') closeMenu();
@@ -136,7 +161,7 @@ export function renderView(root: HTMLElement): void {
         <button class="menu-open-button" type="button" data-menu-open aria-label="Відкрити меню" aria-expanded="false" aria-controls="settings-menu" title="Меню">☰</button>
       </header>
 
-      <div class="audio-lock-banner" data-audio-lock-banner role="status" aria-live="polite" hidden><span data-audio-lock-message></span></div>
+      <div class="audio-lock-banner" data-audio-lock-banner role="status" aria-live="polite" hidden><span data-audio-lock-message></span><button class="secondary-button audio-unlock-button" type="button" data-audio-unlock>Увімкнути звук</button></div>
 
       <main class="home-screen">
         <section class="card alarm-block alert-card alert-card--no-data" data-alert-card role="status" aria-live="polite" aria-label="Стан тривоги: немає даних">
@@ -193,6 +218,7 @@ export function renderView(root: HTMLElement): void {
         <div class="menu-header"><h2>Меню</h2><button class="menu-close-button" type="button" data-menu-close aria-label="Закрити меню">✕</button></div>
         <div class="menu-content">
           <button class="secondary-button menu-refresh-button" type="button" data-page-refresh><span aria-hidden="true">↻</span> Оновити сторінку</button>
+          <button class="secondary-button menu-refresh-button" type="button" data-orientation-toggle aria-pressed="false">↻ Перевернути екран</button>
           <section class="menu-section">
             <button class="menu-section-toggle" type="button" data-menu-toggle="music" aria-expanded="false" aria-controls="menu-panel-music">Музика</button>
             <div class="menu-section-content" id="menu-panel-music" hidden>
