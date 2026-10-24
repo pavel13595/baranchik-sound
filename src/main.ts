@@ -1507,20 +1507,48 @@ async function initializeAudio(
       }
     };
 
-    if (unlockButton) {
-      unlockButton.addEventListener('click', () => {
-        unlockButton.disabled = true;
-        void director.start().then((unlocked) => {
-          unlockButton.disabled = false;
-          updateAudioLockBanner(unlocked);
+    let directUnlockInProgress = false;
+    const tryDirectUnlock = (): void => {
+      if (!unlockButton || directUnlockInProgress) {
+        return;
+      }
+      directUnlockInProgress = true;
+      unlockButton.disabled = true;
+      if (lockMessage) {
+        lockMessage.textContent = 'Увімкнення звуку…';
+      }
+      void director
+        .start()
+        .then((unlocked) => {
           if (unlocked) {
             completeDirectUnlock();
+          } else {
+            updateAudioLockBanner(false);
+            if (audioFeedback) {
+              audioFeedback.textContent = 'Не вдалося увімкнути звук. Натисніть кнопку ще раз.';
+            }
           }
-          if (!unlocked && audioFeedback) {
-            audioFeedback.textContent = 'Не вдалося увімкнути звук. Натисніть кнопку ще раз.';
+        })
+        .catch((error: unknown) => {
+          updateAudioLockBanner(false);
+          if (audioFeedback) {
+            const reason = error instanceof Error ? ` ${error.name}: ${error.message}` : '';
+            audioFeedback.textContent = `Не вдалося увімкнути звук.${reason}`;
+          }
+        })
+        .then(() => {
+          directUnlockInProgress = false;
+          if (unlockButton) {
+            unlockButton.disabled = false;
           }
         });
+    };
+    if (unlockButton) {
+      unlockButton.addEventListener('touchend', (event) => {
+        tryDirectUnlock();
+        event.preventDefault();
       });
+      unlockButton.addEventListener('click', tryDirectUnlock);
     }
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) {
