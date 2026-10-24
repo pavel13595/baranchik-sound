@@ -90,15 +90,15 @@ describe('unlockAudio', () => {
     expect(state.audioUnlocked).toBe(true);
   });
 
-  it('unlocks when one element resolves even if the other rejects', async () => {
+  it('stays locked when the music element resolves but the signal is blocked', async () => {
     const elements = createElements(
       () => Promise.resolve(),
       () => Promise.reject(new Error('signals blocked')),
     );
     const state: AudioUnlockState = { audioUnlocked: true };
 
-    await expect(unlockAudio(elements, state)).resolves.toBeUndefined();
-    expect(state.audioUnlocked).toBe(true);
+    await expect(unlockAudio(elements, state)).rejects.toThrow('signals blocked');
+    expect(state.audioUnlocked).toBe(false);
     expect(elements.music.src).toBe('');
     expect(elements.signals.src).toBe('');
   });
@@ -126,7 +126,7 @@ describe('unlockAudio', () => {
     );
     const state: AudioUnlockState = { audioUnlocked: true };
 
-    await expect(unlockAudio(elements, state)).rejects.toThrow('music blocked');
+    await expect(unlockAudio(elements, state)).rejects.toThrow('signals blocked');
 
     expect(elements.music.pause).toHaveBeenCalled();
     expect(elements.signals.pause).toHaveBeenCalled();

@@ -68,6 +68,7 @@ export function unlockAudio(
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
   let objectUrl = '';
   const audios = [elements.music, elements.signals];
+  const signalAttemptIndex = 1;
   const attempts: Promise<void>[] = [];
   let cleanupStarted = false;
 
@@ -126,7 +127,7 @@ export function unlockAudio(
     attempts.forEach((attempt) => {
       attempt.then(
         () => {
-          if (finished) {
+          if (finished || attempts.indexOf(attempt) !== signalAttemptIndex) {
             return;
           }
           finished = true;
@@ -136,6 +137,13 @@ export function unlockAudio(
         },
         (error: unknown) => {
           if (finished) {
+            return;
+          }
+          if (attempts.indexOf(attempt) === signalAttemptIndex) {
+            finished = true;
+            state.audioUnlocked = false;
+            cleanup();
+            reject(error);
             return;
           }
           failures += 1;
