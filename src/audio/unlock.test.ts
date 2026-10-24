@@ -66,7 +66,7 @@ describe('unlockAudio', () => {
     expect(elements.signals.load).toHaveBeenCalledOnce();
     expect(elements.music.play).toHaveBeenCalledOnce();
     expect(elements.signals.play).toHaveBeenCalledOnce();
-    expect(playbackOrder).toEqual(['music.load', 'music.play', 'signals.load', 'signals.play']);
+    expect(playbackOrder).toEqual(['signals.load', 'signals.play', 'music.load', 'music.play']);
 
     const wav = vi.mocked(URL.createObjectURL).mock.calls[0][0] as Blob;
     const header = new DataView(await wav.arrayBuffer());
@@ -85,8 +85,8 @@ describe('unlockAudio', () => {
     expect(elements.music.pause).toHaveBeenCalledOnce();
     expect(elements.signals.pause).toHaveBeenCalledOnce();
     expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:silent-wav');
-    expect(onPlayResult).toHaveBeenNthCalledWith(1, 'music', null);
-    expect(onPlayResult).toHaveBeenNthCalledWith(2, 'signals', null);
+    expect(onPlayResult).toHaveBeenNthCalledWith(1, 'signals', null);
+    expect(onPlayResult).toHaveBeenNthCalledWith(2, 'music', null);
     expect(state.audioUnlocked).toBe(true);
   });
 
